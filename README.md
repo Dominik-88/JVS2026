@@ -108,9 +108,7 @@
    - **Folder**: `/ (root)`
 4. Klikněte **"Save"**
 5. Počkejte 1-2 minuty
-6. Obnovte stránku – zobrazí se zelený banner s URL:
-
-
+6. Obnovte stránku – zobrazí se zelený banner s URL: XXX
 #### Krok 4: Instalace na iPhone
 
 1. **Otevřete URL** v Safari na iPhone
@@ -132,7 +130,7 @@
 - **Build command**: (prázdné)
 - **Publish directory**: `/`
 6. Klikněte **"Deploy site"**
-7. Po dokončení získáte URL: `https://random-name.netlify.app`
+7. Po dokončení získáte URL: `[https://random-name.netlify.app`](https://random-name.netlify.app`)
 8. Otevřete na iPhone a přidejte na plochu
 
 ---
@@ -147,7 +145,7 @@
 - **Build command**: (prázdné)
 - **Build output directory**: `/`
 6. **"Save and Deploy"**
-7. URL: `https://vodarny-management.pages.dev`
+7. URL: `[https://vodarny-management.pages.dev`](https://vodarny-management.pages.dev`)
 
 ---
 
@@ -340,6 +338,8 @@ Problém: Mapa se nenačítá
 
 Řešení:
 
+prostý text
+
 1. Zkontrolujte internetové připojení
 2. Obnovte stránku (pull down)
 3. Vyčistěte cache:
@@ -350,7 +350,9 @@ Problém: Mapa se nenačítá
    - Přidejte znovu na plochu
 Problém: Data se neukládají
 
-Řešeni
+Řešení:
+
+prostý text
 
 1. Zkontrolujte, zda není zapnutý režim Soukromé prohlížení
 2. Zkontrolujte volné místo v zařízení
@@ -359,6 +361,8 @@ Problém: Data se neukládají
 Problém: Fotografie se nenačítají
 
 Řešení:
+
+prostý text
 
 1. Povolte přístup ke kameře:
    - Nastavení → Safari → Kamera → Povolit
@@ -370,6 +374,8 @@ Problém: Push notifikace nefungují
 
 Řešení:
 
+prostý text
+
 1. Povolte notifikace:
    - Nastavení → Notifikace → Safari → Povolit
 2. Push notifikace vyžadují HTTPS
@@ -377,6 +383,8 @@ Problém: Push notifikace nefungují
 Problém: Aplikace je pomalá
 
 Řešení:
+
+prostý text
 
 1. Vyčistěte historii záznamů:
    - Tab "📋 Evidence" → "🗑️ Smazat"
@@ -393,8 +401,9 @@ Ochrana osobních údajů
 ✅ Žádné odesílání na server (pokud není implementováno)
 ✅ Fotografie jsou v Base64 v LocalStorage
 ⚠️ Záloha je vaší odpovědností (pravidelný export)
-
 Doporučení
+
+prostý text
 
 1. Pravidelně exportujte data (týdně)
 2. Ukládejte exporty na bezpečné místo (iCloud, Google Drive)
