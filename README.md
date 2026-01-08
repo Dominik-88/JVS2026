@@ -309,11 +309,10 @@ Aplikace ukládá data do `localStorage` pod klíčem `appState`:
  status: 'all'
  }
 }
-Záloha dat
 
-Export kompletních dat:
+## 📊 **ZALOHA DAT**
 
-prostý text
+### Export kompletnich dat
 
 1. Klikněte "💾 Export"
 2. Vyberte "JSON - Kompletní data"
@@ -324,21 +323,18 @@ prostý text
    - Všechny finanční záznamy
    - Všechny fotografie (Base64)
    - Nastavení aplikace
-Obnovení ze zálohy:
 
-javascriptu
+Obnovení ze zálohy:
 
 // V konzoli prohlížeče:
 const backup = /* vložte obsah JSON souboru */;
 localStorage.setItem('appState', JSON.stringify(backup.state));
 location.reload();
+
 🐛 ŘEŠENÍ POTÍŽÍ
 
 Problém: Mapa se nenačítá
-
 Řešení:
-
-prostý text
 
 1. Zkontrolujte internetové připojení
 2. Obnovte stránku (pull down)
@@ -348,21 +344,19 @@ prostý text
    - Smažte ikonu z plochy
    - Otevřete URL v Safari
    - Přidejte znovu na plochu
+
 Problém: Data se neukládají
 
 Řešení:
-
-prostý text
 
 1. Zkontrolujte, zda není zapnutý režim Soukromé prohlížení
 2. Zkontrolujte volné místo v zařízení
 3. Otevřete Safari → Nastavení → Safari
 4. Ujistěte se, že "Blokovat všechny cookies" je VYPNUTO
+
 Problém: Fotografie se nenačítají
 
 Řešení:
-
-prostý text
 
 1. Povolte přístup ke kameře:
    - Nastavení → Safari → Kamera → Povolit
@@ -370,21 +364,19 @@ prostý text
 3. Zkontrolujte volné místo v LocalStorage:
    - Safari má limit ~5-10MB pro LocalStorage
    - Smažte staré fotografie nebo exportujte data
+
 Problém: Push notifikace nefungují
 
 Řešení:
-
-prostý text
 
 1. Povolte notifikace:
    - Nastavení → Notifikace → Safari → Povolit
 2. Push notifikace vyžadují HTTPS
 3. GitHub Pages automaticky používá HTTPS ✅
+
 Problém: Aplikace je pomalá
 
 Řešení:
-
-prostý text
 
 1. Vyčistěte historii záznamů:
    - Tab "📋 Evidence" → "🗑️ Smazat"
