@@ -1,0 +1,2363 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="description" content="Profesionální management systém vodárenských areálů JVS a.s. s pokročilou navigací a plánováním tras">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Vodárenské areály JVS – Premium Management System v4.0</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    
+    <!-- Leaflet Routing Machine -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+    
+    <style>
+        :root {
+            /* Primary Colors */
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --primary-light: #3b82f6;
+            --primary-lighter: #60a5fa;
+            
+            /* Status Colors */
+            --success: #16a34a;
+            --success-light: #22c55e;
+            --warning: #f59e0b;
+            --danger: #dc2626;
+            --info: #0ea5e9;
+            
+            /* Gray Scale */
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+            
+            /* Shadows */
+            --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-sm: 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            --shadow-2xl: 0 35px 60px -15px rgba(0, 0, 0, 0.3);
+            
+            /* Border Radius */
+            --radius-sm: 8px;
+            --radius: 12px;
+            --radius-md: 14px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --radius-2xl: 24px;
+            
+            /* Transitions */
+            --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            
+            /* Spacing */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 12px;
+            --spacing-lg: 16px;
+            --spacing-xl: 20px;
+            --spacing-2xl: 24px;
+            --spacing-3xl: 32px;
+            
+            /* Z-index layers */
+            --z-map: 1;
+            --z-panels: 999;
+            --z-header: 2000;
+            --z-modal: 3000;
+            --z-toast: 4000;
+        }
+
+        /* Dark mode variables */
+        [data-theme="dark"] {
+            --gray-50: #0f172a;
+            --gray-100: #1e293b;
+            --gray-200: #334155;
+            --gray-300: #475569;
+            --gray-400: #64748b;
+            --gray-500: #94a3b8;
+            --gray-600: #cbd5e1;
+            --gray-700: #e2e8f0;
+            --gray-800: #f1f5f9;
+            --gray-900: #f8fafc;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--gray-100);
+            color: var(--gray-900);
+            overflow: hidden;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            transition: background var(--transition);
+        }
+
+        /* ============ HEADER ============ */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 72px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #3b82f6 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 var(--spacing-2xl);
+            box-shadow: var(--shadow-lg);
+            z-index: var(--z-header);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-lg);
+        }
+
+        .logo {
+            font-size: 36px;
+            animation: float 3s ease-in-out infinite;
+            cursor: pointer;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+            transition: var(--transition);
+        }
+
+        .logo:hover {
+            transform: scale(1.1) rotate(10deg);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        .header-title h1 {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 2px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header-title small {
+            opacity: 0.9;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: var(--spacing-md);
+            align-items: center;
+        }
+
+        .btn-header {
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-header::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-header:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-header:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+        }
+
+        .btn-header:active {
+            transform: translateY(0) scale(0.95);
+        }
+
+        .btn-header span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .theme-toggle {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        /* ============ MAP ============ */
+        #map {
+            position: fixed;
+            top: 72px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: var(--z-map);
+            transition: filter var(--transition);
+        }
+
+        #map.route-mode {
+            filter: brightness(0.95);
+        }
+
+        /* ============ STATS PANEL ============ */
+        .stats-panel {
+            position: fixed;
+            top: 92px;
+            left: 20px;
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-2xl);
+            padding: var(--spacing-2xl);
+            z-index: var(--z-panels);
+            min-width: 340px;
+            border: 1px solid var(--gray-200);
+            animation: slideInLeft 0.4s ease-out;
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-xl);
+            padding-bottom: var(--spacing-lg);
+            border-bottom: 2px solid var(--gray-200);
+        }
+
+        .panel-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--gray-900);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .panel-icon {
+            font-size: 24px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--gray-50) 0%, white 100%);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-md);
+            border: 2px solid var(--gray-200);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            transform: scaleX(0);
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary);
+        }
+
+        .stat-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .stat-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--gray-600);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: var(--spacing-sm);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--gray-900);
+            line-height: 1;
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+        }
+
+        .stat-unit {
+            font-size: 14px;
+            color: var(--gray-500);
+            font-weight: 600;
+        }
+
+        .stat-change {
+            font-size: 12px;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 600;
+        }
+
+        .stat-change.positive {
+            color: var(--success);
+        }
+
+        .stat-change.negative {
+            color: var(--danger);
+        }
+
+        .progress-card {
+            background: linear-gradient(135deg, #f0f9ff 0%, white 100%);
+            padding: var(--spacing-xl);
+            border-radius: var(--radius-md);
+            border: 2px solid #bfdbfe;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 14px;
+            background: var(--gray-200);
+            border-radius: 7px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success) 0%, var(--success-light) 100%);
+            border-radius: 7px;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(22, 163, 74, 0.4);
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255,255,255,0.4), 
+                transparent
+            );
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .progress-label {
+            font-size: 11px;
+            color: var(--gray-600);
+            margin-top: var(--spacing-sm);
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .progress-percentage {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--success);
+        }
+
+        /* ============ QUICK ACTIONS ============ */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-xl);
+        }
+
+        .quick-btn {
+            padding: var(--spacing-md);
+            background: var(--gray-50);
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            color: var(--gray-700);
+        }
+
+        .quick-btn:hover {
+            background: white;
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .quick-btn-icon {
+            font-size: 20px;
+        }
+
+        /* ============ FILTER PANEL ============ */
+        .filter-panel {
+            position: fixed;
+            top: 92px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-2xl);
+            padding: var(--spacing-2xl);
+            z-index: var(--z-panels);
+            min-width: 300px;
+            max-height: calc(100vh - 132px);
+            overflow-y: auto;
+            border: 1px solid var(--gray-200);
+            transform: translateX(0);
+            transition: var(--transition);
+            animation: slideInRight 0.4s ease-out;
+            backdrop-filter: blur(20px);
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .filter-panel.hidden {
+            transform: translateX(calc(100% + 40px));
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-xl);
+            padding-bottom: var(--spacing-lg);
+            border-bottom: 2px solid var(--gray-200);
+        }
+
+        .filter-header h3 {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--gray-900);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .filter-close {
+            background: var(--gray-100);
+            border: none;
+            color: var(--gray-600);
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 18px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .filter-close:hover {
+            background: var(--gray-200);
+            transform: rotate(90deg);
+            color: var(--danger);
+        }
+
+        .filter-group {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .filter-group label {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--gray-700);
+            display: block;
+            margin-bottom: var(--spacing-md);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .district-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+        }
+
+        .district-chip {
+            padding: 10px 18px;
+            background: var(--gray-100);
+            border: 2px solid var(--gray-200);
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--gray-700);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .district-chip::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: var(--primary-light);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.4s, height 0.4s;
+        }
+
+        .district-chip:hover {
+            background: var(--gray-200);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .district-chip.active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .district-chip.active::before {
+            width: 200px;
+            height: 200px;
+        }
+
+        .filter-stats {
+            background: var(--gray-50);
+            padding: var(--spacing-md);
+            border-radius: var(--radius);
+            font-size: 12px;
+            color: var(--gray-600);
+            margin-top: var(--spacing-md);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-xl);
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--gray-100);
+            color: var(--gray-700);
+            border: 2px solid var(--gray-200);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray-200);
+            border-color: var(--gray-300);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        /* ============ ROUTE PLANNER ============ */
+        .route-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-2xl);
+            padding: var(--spacing-xl);
+            z-index: var(--z-panels);
+            min-width: 400px;
+            max-width: 600px;
+            border: 1px solid var(--gray-200);
+            backdrop-filter: blur(20px);
+            display: none;
+            animation: slideInUp 0.4s ease-out;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        .route-panel.active {
+            display: block;
+        }
+
+        .route-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .route-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--gray-900);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .route-info {
+            display: flex;
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .route-stat {
+            flex: 1;
+            background: var(--gray-50);
+            padding: var(--spacing-md);
+            border-radius: var(--radius);
+            text-align: center;
+        }
+
+        .route-stat-label {
+            font-size: 11px;
+            color: var(--gray-600);
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .route-stat-value {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--gray-900);
+        }
+
+        .route-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        /* ============ CUSTOM MARKERS ============ */
+        .custom-marker {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border: 3px solid white;
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .custom-marker::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50% 50% 50% 0;
+            background: inherit;
+            animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+            opacity: 0;
+        }
+
+        @keyframes ping {
+            75%, 100% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        .custom-marker:hover {
+            transform: rotate(-45deg) scale(1.3);
+            z-index: 1000 !important;
+            filter: brightness(1.1);
+        }
+
+        .custom-marker::before {
+            content: '💧';
+            font-size: 20px;
+            transform: rotate(45deg);
+            filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
+        }
+
+        .custom-marker.completed {
+            background: linear-gradient(135deg, var(--success), var(--success-light));
+            opacity: 0.8;
+            animation: completePulse 1s ease-out;
+        }
+
+        @keyframes completePulse {
+            0%, 100% { transform: rotate(-45deg) scale(1); }
+            50% { transform: rotate(-45deg) scale(1.3); }
+        }
+
+        .custom-marker.completed::before {
+            content: '✓';
+            color: white;
+            font-weight: bold;
+            font-size: 22px;
+        }
+
+        .custom-marker.selected {
+            background: linear-gradient(135deg, var(--warning), #fbbf24);
+            transform: rotate(-45deg) scale(1.2);
+            z-index: 999 !important;
+        }
+
+        /* ============ POPUP ============ */
+        .leaflet-popup-content-wrapper {
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-2xl);
+            padding: 0;
+            overflow: hidden;
+            border: 1px solid var(--gray-200);
+            min-width: 300px;
+        }
+
+        .leaflet-popup-content {
+            margin: 0;
+        }
+
+        .leaflet-popup-tip {
+            box-shadow: var(--shadow-lg);
+        }
+
+        .popup-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: var(--spacing-xl) var(--spacing-2xl);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .popup-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 200px;
+            height: 200px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+
+        .popup-title {
+            font-size: 17px;
+            font-weight: 800;
+            margin-bottom: 6px;
+            position: relative;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .popup-district {
+            font-size: 12px;
+            opacity: 0.95;
+            font-weight: 700;
+            display: inline-block;
+            background: rgba(255,255,255,0.25);
+            padding: 4px 12px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .popup-body {
+            padding: var(--spacing-2xl);
+            background: white;
+        }
+
+        .popup-info {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-xl);
+            padding: var(--spacing-lg);
+            background: linear-gradient(135deg, var(--gray-50), white);
+            border-radius: var(--radius-md);
+            border: 2px solid var(--gray-200);
+        }
+
+        .popup-info-icon {
+            font-size: 28px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+        }
+
+        .popup-info-text {
+            flex: 1;
+        }
+
+        .popup-info-label {
+            font-size: 11px;
+            color: var(--gray-600);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .popup-info-value {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--gray-900);
+            letter-spacing: -0.5px;
+        }
+
+        .popup-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-md);
+        }
+
+        .popup-btn {
+            padding: 14px 18px;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .popup-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.4s, height 0.4s;
+        }
+
+        .popup-btn:hover::before {
+            width: 200px;
+            height: 200px;
+        }
+
+        .popup-btn-navigate {
+            background: linear-gradient(135deg, var(--info), #38bdf8);
+            color: white;
+            grid-column: 1 / -1;
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+        }
+
+        .popup-btn-navigate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4);
+        }
+
+        .popup-btn-complete {
+            background: linear-gradient(135deg, var(--success), var(--success-light));
+            color: white;
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+        }
+
+        .popup-btn-complete:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(22, 163, 74, 0.4);
+        }
+
+        .popup-btn-edit {
+            background: var(--gray-100);
+            color: var(--gray-700);
+            border: 2px solid var(--gray-200);
+        }
+
+        .popup-btn-edit:hover {
+            background: var(--gray-200);
+            border-color: var(--gray-300);
+        }
+
+        .popup-btn:active {
+            transform: scale(0.95);
+        }
+
+        .popup-btn.completed {
+            background: var(--gray-200);
+            color: var(--gray-500);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .popup-btn.completed:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* ============ TOAST NOTIFICATIONS ============ */
+        .toast-container {
+            position: fixed;
+            top: 92px;
+            right: 20px;
+            z-index: var(--z-toast);
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+            pointer-events: none;
+        }
+
+        .toast {
+            background: white;
+            padding: var(--spacing-lg) var(--spacing-xl);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-xl);
+            border-left: 4px solid var(--primary);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            min-width: 300px;
+            pointer-events: all;
+            animation: slideInRight 0.3s ease-out;
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .toast.success {
+            border-left-color: var(--success);
+        }
+
+        .toast.error {
+            border-left-color: var(--danger);
+        }
+
+        .toast.warning {
+            border-left-color: var(--warning);
+        }
+
+        .toast-icon {
+            font-size: 24px;
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 2px;
+            color: var(--gray-900);
+        }
+
+        .toast-message {
+            font-size: 12px;
+            color: var(--gray-600);
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: var(--gray-400);
+            cursor: pointer;
+            font-size: 18px;
+            padding: 4px;
+            transition: var(--transition);
+        }
+
+        .toast-close:hover {
+            color: var(--gray-600);
+        }
+
+        /* ============ LOADING SPINNER ============ */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 768px) {
+            .header {
+                height: 64px;
+                padding: 0 var(--spacing-lg);
+            }
+
+            .logo {
+                font-size: 28px;
+            }
+
+            .header-title h1 {
+                font-size: 16px;
+            }
+
+            .header-title small {
+                font-size: 11px;
+            }
+
+            .btn-header {
+                padding: 8px 14px;
+                font-size: 12px;
+            }
+
+            .theme-toggle {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
+
+            #map {
+                top: 64px;
+            }
+
+            .stats-panel {
+                top: 84px;
+                left: 10px;
+                right: 10px;
+                min-width: auto;
+                padding: var(--spacing-lg);
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-md);
+            }
+
+            .quick-actions {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+
+            .filter-panel {
+                top: auto;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+                max-height: 70vh;
+                transform: translateY(0);
+            }
+
+            .filter-panel.hidden {
+                transform: translateY(100%);
+            }
+
+            .route-panel {
+                left: 10px;
+                right: 10px;
+                bottom: 10px;
+                transform: translateX(0);
+                min-width: auto;
+                max-width: none;
+            }
+
+            .route-panel.active {
+                animation: slideInUp 0.4s ease-out;
+            }
+
+            @keyframes slideInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(50px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .popup-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .popup-btn-navigate {
+                grid-column: 1;
+            }
+
+            .toast-container {
+                left: 10px;
+                right: 10px;
+                top: 84px;
+            }
+
+            .toast {
+                min-width: auto;
+            }
+        }
+
+        /* ============ PRINT STYLES ============ */
+        @media print {
+            .header,
+            .stats-panel,
+            .filter-panel,
+            .route-panel,
+            .toast-container {
+                display: none !important;
+            }
+
+            #map {
+                top: 0;
+                position: relative;
+                height: 100vh;
+            }
+        }
+
+        /* ============ SCROLLBAR ============ */
+        .filter-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .filter-panel::-webkit-scrollbar-track {
+            background: var(--gray-100);
+            border-radius: 4px;
+        }
+
+        .filter-panel::-webkit-scrollbar-thumb {
+            background: var(--gray-300);
+            border-radius: 4px;
+        }
+
+        .filter-panel::-webkit-scrollbar-thumb:hover {
+            background: var(--gray-400);
+        }
+
+        /* ============ ACCESSIBILITY ============ */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        /* Focus styles */
+        button:focus-visible,
+        .district-chip:focus-visible {
+            outline: 3px solid var(--primary);
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header class="header">
+        <div class="header-left">
+            <div class="logo" role="img" aria-label="Logo JVS">💧</div>
+            <div class="header-title">
+                <h1>Vodárenské areály JVS</h1>
+                <small>Management System <span class="badge">v4.0 PRO</span></small>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="btn-header theme-toggle" onclick="toggleTheme()" aria-label="Přepnout tmavý režim" title="Přepnout tmavý režim">
+                <span id="themeIcon">🌙</span>
+            </button>
+            <button class="btn-header" onclick="toggleRouteMode()" aria-label="Plánovač trasy">
+                <span>🗺️</span>
+                <span class="desktop-only">Trasa</span>
+            </button>
+            <button class="btn-header" onclick="toggleFilters()" aria-label="Otevřít filtry">
+                <span>🔍</span>
+                <span class="desktop-only">Filtry</span>
+            </button>
+            <button class="btn-header" onclick="exportData()" aria-label="Exportovat data">
+                <span>📥</span>
+                <span class="desktop-only">Export</span>
+            </button>
+            <button class="btn-header" onclick="resetAll()" aria-label="Resetovat vše">
+                <span>🔄</span>
+                <span class="desktop-only">Reset</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAP -->
+    <div id="map" role="application" aria-label="Interaktivní mapa lokalit"></div>
+
+    <!-- STATS PANEL -->
+    <aside class="stats-panel" role="complementary" aria-label="Statistiky">
+        <div class="panel-header">
+            <div class="panel-title">
+                <span class="panel-icon">📊</span>
+                <span>Statistiky</span>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">
+                    <span>🏗️</span>
+                    <span>Celková plocha</span>
+                </div>
+                <div class="stat-value">
+                    <span id="totalArea">0</span>
+                    <span class="stat-unit">m²</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">
+                    <span>⏱️</span>
+                    <span>Zbývající plocha</span>
+                </div>
+                <div class="stat-value">
+                    <span id="remainingArea">0</span>
+                    <span class="stat-unit">m²</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="progress-card">
+            <div class="progress-header">
+                <div class="stat-label">
+                    <span>✅</span>
+                    <span>Pokrok</span>
+                </div>
+                <div class="progress-percentage" id="progressPercentage">0%</div>
+            </div>
+            <div class="stat-value" style="font-size: 20px; margin-bottom: 12px;">
+                <span id="completedCount">0</span>
+                <span class="stat-unit">/ <span id="totalCount">0</span> lokalit</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+            <div class="progress-label" id="progressLabel">Začněte označováním lokalit</div>
+        </div>
+
+        <div class="quick-actions">
+            <button class="quick-btn" onclick="zoomToAll()" aria-label="Zobrazit vše">
+                <span class="quick-btn-icon">🎯</span>
+                <span>Zobrazit vše</span>
+            </button>
+            <button class="quick-btn" onclick="zoomToRemaining()" aria-label="Pouze nezpracované">
+                <span class="quick-btn-icon">📍</span>
+                <span>Nezpracované</span>
+            </button>
+            <button class="quick-btn" onclick="showStatistics()" aria-label="Detailní statistiky">
+                <span class="quick-btn-icon">📈</span>
+                <span>Statistiky</span>
+            </button>
+            <button class="quick-btn" onclick="shareProgress()" aria-label="Sdílet pokrok">
+                <span class="quick-btn-icon">📤</span>
+                <span>Sdílet</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- FILTER PANEL -->
+    <aside class="filter-panel hidden" id="filterPanel" role="complementary" aria-label="Filtry">
+        <div class="filter-header">
+            <h3>🔍 Filtry lokalit</h3>
+            <button class="filter-close" onclick="toggleFilters()" aria-label="Zavřít filtry">✕</button>
+        </div>
+        
+        <div class="filter-group">
+            <label>Filtrovat podle okresu</label>
+            <div class="district-chips" id="districtChips"></div>
+            <div class="filter-stats">
+                <span>Zobrazeno lokalit:</span>
+                <strong id="filteredCount">41</strong>
+            </div>
+        </div>
+
+        <div class="filter-group">
+            <label>Stav zpracování</label>
+            <div class="district-chips">
+                <div class="district-chip" onclick="filterByStatus('all')" data-status="all">
+                    Vše
+                </div>
+                <div class="district-chip" onclick="filterByStatus('completed')" data-status="completed">
+                    Hotovo
+                </div>
+                <div class="district-chip" onclick="filterByStatus('pending')" data-status="pending">
+                    Čeká
+                </div>
+            </div>
+        </div>
+
+        <div class="filter-group">
+            <label>Velikost plochy</label>
+            <div class="district-chips">
+                <div class="district-chip" onclick="filterBySize('all')" data-size="all">
+                    Vše
+                </div>
+                <div class="district-chip" onclick="filterBySize('small')" data-size="small">
+                    < 1000 m²
+                </div>
+                <div class="district-chip" onclick="filterBySize('medium')" data-size="medium">
+                    1-5k m²
+                </div>
+                <div class="district-chip" onclick="filterBySize('large')" data-size="large">
+                    > 5k m²
+                </div>
+            </div>
+        </div>
+
+        <div class="filter-actions">
+            <button class="btn btn-secondary" onclick="clearFilters()">
+                <span>🗑️</span>
+                <span>Vymazat</span>
+            </button>
+            <button class="btn btn-primary" onclick="applyFilters()">
+                <span>✓</span>
+                <span>Použít</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- ROUTE PLANNER PANEL -->
+    <aside class="route-panel" id="routePanel" role="complementary" aria-label="Plánovač trasy">
+        <div class="route-header">
+            <div class="route-title">
+                <span>🗺️</span>
+                <span>Plánovač trasy</span>
+            </div>
+            <button class="filter-close" onclick="toggleRouteMode()" aria-label="Zavřít plánovač">✕</button>
+        </div>
+
+        <div class="route-info">
+            <div class="route-stat">
+                <div class="route-stat-label">Vzdálenost</div>
+                <div class="route-stat-value" id="routeDistance">0 km</div>
+            </div>
+            <div class="route-stat">
+                <div class="route-stat-label">Čas</div>
+                <div class="route-stat-value" id="routeTime">0 min</div>
+            </div>
+            <div class="route-stat">
+                <div class="route-stat-label">Zastávky</div>
+                <div class="route-stat-value" id="routeStops">0</div>
+            </div>
+        </div>
+
+        <div class="route-actions">
+            <button class="btn btn-secondary" onclick="clearRoute()">
+                <span>🗑️</span>
+                <span>Vymazat trasu</span>
+            </button>
+            <button class="btn btn-primary" onclick="optimizeRoute()">
+                <span>✨</span>
+                <span>Optimalizovat</span>
+            </button>
+            <button class="btn btn-primary" onclick="startNavigation()">
+                <span>🧭</span>
+                <span>Navigovat</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- TOAST CONTAINER -->
+    <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <!-- Leaflet Routing Machine -->
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+
+    <script>
+        // ============ DATA ============
+        const locations = [
+            { "district": "PI", "name": "VDJ Amerika II", "area": 3303, "lat": 49.305131, "lng": 14.166126 },
+            { "district": "ST", "name": "VDJ Drahonice", "area": 5953, "lat": 49.202902, "lng": 14.063713 },
+            { "district": "ST", "name": "VDJ Vodňany", "area": 1594, "lat": 49.164550, "lng": 14.177836 },
+            { "district": "CB", "name": "VDJ Hlavatce", "area": 7968, "lat": 49.063584, "lng": 14.267751 },
+            { "district": "PT", "name": "VDJ Šibeniční vrch I", "area": 1835, "lat": 49.025083, "lng": 13.994111 },
+            { "district": "PT", "name": "ÚV Husinecka přehrada", "area": 4908, "lat": 49.034362, "lng": 13.996830 },
+            { "district": "PT", "name": "VDJ Šibeniční vrch II", "area": 3206, "lat": 49.026710, "lng": 13.994001 },
+            { "district": "PI", "name": "VDJ Zálužany", "area": 2350, "lat": 49.552857, "lng": 14.083381 },
+            { "district": "PT", "name": "VDJ Ptáčník", "area": 1070, "lat": 49.066147, "lng": 14.186844 },
+            { "district": "CB", "name": "VDJ Zdoba", "area": 15523, "lat": 49.212422, "lng": 14.338095 },
+            { "district": "CK", "name": "VDJ Domoradice", "area": 4148, "lat": 48.829651, "lng": 14.326564 },
+            { "district": "CK", "name": "VDJ Horní Brána", "area": 1665, "lat": 48.807970, "lng": 14.329352 },
+            { "district": "CK", "name": "VDJ Netřebice", "area": 877, "lat": 48.783277, "lng": 14.456447 },
+            { "district": "CK", "name": "VDJ Plešivec", "area": 975, "lat": 48.802231, "lng": 14.304933 },
+            { "district": "CB", "name": "VDJ Doudleby", "area": 413, "lat": 48.888896, "lng": 14.480271 },
+            { "district": "CB", "name": "VDJ Jankov", "area": 784, "lat": 48.968747, "lng": 14.301697 },
+            { "district": "CB", "name": "VDJ Hosín II", "area": 4173, "lat": 49.030641, "lng": 14.501012 },
+            { "district": "CB", "name": "VDJ Chlum", "area": 535, "lat": 49.096493, "lng": 14.388679 },
+            { "district": "CB", "name": "VDJ Chotýčany", "area": 4775, "lat": 49.070748, "lng": 14.519460 },
+            { "district": "CB", "name": "VDJ Rudolfov III", "area": 1868, "lat": 48.986207, "lng": 14.547076 },
+            { "district": "CB", "name": "VDJ Rimov - Vesce", "area": 662, "lat": 48.847847, "lng": 14.466957 },
+            { "district": "CB", "name": "VDJ Hosin", "area": 809, "lat": 49.033641, "lng": 14.492878 },
+            { "district": "CB", "name": "VDJ Včelná", "area": 8660, "lat": 48.924663, "lng": 14.463506 },
+            { "district": "CB", "name": "VDJ Húry", "area": 395, "lat": 49.006417, "lng": 14.549815 },
+            { "district": "CB", "name": "VDJ Chlumec", "area": 811, "lat": 49.124766, "lng": 14.431321 },
+            { "district": "CB", "name": "VDJ Olešník", "area": 380, "lat": 49.111103, "lng": 14.377766 },
+            { "district": "CB", "name": "ČS Bukovec", "area": 4943, "lat": 48.881608, "lng": 14.449233 },
+            { "district": "CB", "name": "VDJ Heřman", "area": 982, "lat": 48.909479, "lng": 14.499876 },
+            { "district": "CB", "name": "ČS Vidov u řeky", "area": 2501, "lat": 48.924157, "lng": 14.489619 },
+            { "district": "CB", "name": "Vrt Vidov", "area": 470, "lat": 48.924066, "lng": 14.489679 },
+            { "district": "CB", "name": "ÚV Plav", "area": 74777, "lat": 48.912611, "lng": 14.494018 },
+            { "district": "TA", "name": "VDJ Čekanice", "area": 6344, "lat": 49.422197, "lng": 14.689896 },
+            { "district": "TA", "name": "VDJ Svatá Anna", "area": 4192, "lat": 49.401133, "lng": 14.698640 },
+            { "district": "TA", "name": "VDJ Bezděčín", "area": 1996, "lat": 49.323096, "lng": 14.628405 },
+            { "district": "TA", "name": "VDJ Milevsko", "area": 823, "lat": 49.452521, "lng": 14.344102 },
+            { "district": "TA", "name": "VDJ Hodušín", "area": 1708, "lat": 49.429670, "lng": 14.474214 },
+            { "district": "TA", "name": "VDJ Všechov", "area": 1574, "lat": 49.430159, "lng": 14.623205 },
+            { "district": "TA", "name": "VDJ Zlukov", "area": 1520, "lat": 49.196289, "lng": 14.736382 },
+            { "district": "TA", "name": "ÚV Tábor", "area": 12262, "lat": 49.422872, "lng": 14.666426 },
+            { "district": "TA", "name": "ČS Sudoměřice", "area": 2508, "lat": 49.286580, "lng": 14.547794 },
+            { "district": "TA", "name": "Provozní Vodojem Tábor", "area": 1853, "lat": 49.424264, "lng": 14.666384 }
+        ];
+
+        // ============ STATE ============
+        let map;
+        let markers = [];
+        let markerMap = new Map(); // Map location name to marker
+        let completedLocations = new Set();
+        let selectedDistricts = new Set();
+        let statusFilter = 'all';
+        let sizeFilter = 'all';
+        let routeMode = false;
+        let routePoints = [];
+        let routeControl = null;
+        let darkMode = false;
+
+        // ============ INITIALIZE ============
+        function init() {
+            // Load saved state
+            loadState();
+
+            // Check for dark mode preference
+            darkMode = localStorage.getItem('jvs_darkMode') === 'true';
+            if (darkMode) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                document.getElementById('themeIcon').textContent = '☀️';
+            }
+
+            // Initialize map
+            map = L.map('map', {
+                zoomControl: false
+            }).setView([49.0, 14.3], 10);
+            
+            // Add zoom control to top left
+            L.control.zoom({
+                position: 'topleft'
+            }).addTo(map);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(map);
+
+            // Initialize districts
+            initDistricts();
+
+            // Add markers
+            addMarkers();
+
+            // Update stats
+            updateStats();
+
+            // Show welcome toast
+            showToast('success', 'Systém připraven', 'Vítejte v JVS Management System v4.0 PRO');
+        }
+
+        // ============ STATE MANAGEMENT ============
+        function loadState() {
+            const saved = localStorage.getItem('jvs_completed');
+            if (saved) {
+                try {
+                    completedLocations = new Set(JSON.parse(saved));
+                } catch (e) {
+                    console.error('Error loading state:', e);
+                }
+            }
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem('jvs_completed', JSON.stringify([...completedLocations]));
+            } catch (e) {
+                console.error('Error saving state:', e);
+                showToast('error', 'Chyba ukládání', 'Nepodařilo se uložit stav aplikace');
+            }
+        }
+
+        // ============ THEME TOGGLE ============
+        function toggleTheme() {
+            darkMode = !darkMode;
+            if (darkMode) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                document.getElementById('themeIcon').textContent = '☀️';
+                localStorage.setItem('jvs_darkMode', 'true');
+                showToast('info', 'Tmavý režim', 'Tmavý režim byl aktivován');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                document.getElementById('themeIcon').textContent = '🌙';
+                localStorage.setItem('jvs_darkMode', 'false');
+                showToast('info', 'Světlý režim', 'Světlý režim byl aktivován');
+            }
+        }
+
+        // ============ DISTRICTS ============
+        function initDistricts() {
+            const districts = [...new Set(locations.map(l => l.district))].sort();
+            const container = document.getElementById('districtChips');
+            
+            districts.forEach(district => {
+                const locationCount = locations.filter(l => l.district === district).length;
+                const chip = document.createElement('div');
+                chip.className = 'district-chip';
+                chip.textContent = `${district} (${locationCount})`;
+                chip.setAttribute('data-district', district);
+                chip.onclick = () => toggleDistrict(district, chip);
+                chip.setAttribute('role', 'button');
+                chip.setAttribute('tabindex', '0');
+                chip.setAttribute('aria-label', `Filtrovat okres ${district}`);
+                container.appendChild(chip);
+            });
+        }
+
+        function toggleDistrict(district, element) {
+            if (selectedDistricts.has(district)) {
+                selectedDistricts.delete(district);
+                element.classList.remove('active');
+            } else {
+                selectedDistricts.add(district);
+                element.classList.add('active');
+            }
+            updateFilteredCount();
+        }
+
+        // ============ STATUS FILTER ============
+        function filterByStatus(status) {
+            statusFilter = status;
+            // Update active state
+            document.querySelectorAll('[data-status]').forEach(chip => {
+                chip.classList.toggle('active', chip.getAttribute('data-status') === status);
+            });
+            updateFilteredCount();
+        }
+
+        // ============ SIZE FILTER ============
+        function filterBySize(size) {
+            sizeFilter = size;
+            // Update active state
+            document.querySelectorAll('[data-size]').forEach(chip => {
+                chip.classList.toggle('active', chip.getAttribute('data-size') === size);
+            });
+            updateFilteredCount();
+        }
+
+        // ============ FILTER HELPERS ============
+        function getFilteredLocations() {
+            return locations.filter(location => {
+                // District filter
+                if (selectedDistricts.size > 0 && !selectedDistricts.has(location.district)) {
+                    return false;
+                }
+
+                // Status filter
+                const isCompleted = completedLocations.has(location.name);
+                if (statusFilter === 'completed' && !isCompleted) return false;
+                if (statusFilter === 'pending' && isCompleted) return false;
+
+                // Size filter
+                if (sizeFilter === 'small' && location.area >= 1000) return false;
+                if (sizeFilter === 'medium' && (location.area < 1000 || location.area > 5000)) return false;
+                if (sizeFilter === 'large' && location.area <= 5000) return false;
+
+                return true;
+            });
+        }
+
+        function updateFilteredCount() {
+            const count = getFilteredLocations().length;
+            document.getElementById('filteredCount').textContent = count;
+        }
+
+        // ============ MARKERS ============
+        function addMarkers() {
+            // Clear existing markers
+            markers.forEach(m => map.removeLayer(m));
+            markers = [];
+            markerMap.clear();
+
+            // Filter locations
+            const filtered = getFilteredLocations();
+
+            // Add markers
+            filtered.forEach(location => {
+                const isCompleted = completedLocations.has(location.name);
+                
+                const icon = L.divIcon({
+                    className: 'custom-marker' + (isCompleted ? ' completed' : ''),
+                    iconSize: [44, 44],
+                    iconAnchor: [22, 44],
+                    popupAnchor: [0, -44]
+                });
+
+                const marker = L.marker([location.lat, location.lng], { icon })
+                    .bindPopup(() => createPopup(location, isCompleted), {
+                        maxWidth: 320,
+                        className: 'custom-popup'
+                    })
+                    .addTo(map);
+
+                // Add click handler for route mode
+                marker.on('click', () => {
+                    if (routeMode) {
+                        addToRoute(location, marker);
+                    }
+                });
+
+                markers.push(marker);
+                markerMap.set(location.name, marker);
+            });
+
+            updateFilteredCount();
+        }
+
+        // ============ POPUP ============
+        function createPopup(location, isCompleted) {
+            const popup = document.createElement('div');
+            
+            popup.innerHTML = `
+                <div class="popup-header">
+                    <div class="popup-title">${location.name}</div>
+                    <span class="popup-district">Okres: ${location.district}</span>
+                </div>
+                <div class="popup-body">
+                    <div class="popup-info">
+                        <div class="popup-info-icon">📏</div>
+                        <div class="popup-info-text">
+                            <div class="popup-info-label">Plocha lokality</div>
+                            <div class="popup-info-value">${location.area.toLocaleString('cs-CZ')} m²</div>
+                        </div>
+                    </div>
+                    <div class="popup-actions">
+                        <button class="popup-btn popup-btn-navigate" data-lat="${location.lat}" data-lng="${location.lng}">
+                            <span>🧭</span>
+                            <span>Navigovat</span>
+                        </button>
+                        <button class="popup-btn popup-btn-complete ${isCompleted ? 'completed' : ''}" 
+                                data-name="${location.name}"
+                                ${isCompleted ? 'disabled' : ''}>
+                            <span>${isCompleted ? '✓' : '☐'}</span>
+                            <span>${isCompleted ? 'Hotovo' : 'Označit'}</span>
+                        </button>
+                        <button class="popup-btn popup-btn-edit" data-name="${location.name}">
+                            <span>✏️</span>
+                            <span>Upravit</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // Add event listeners
+            popup.querySelector('.popup-btn-navigate').addEventListener('click', function() {
+                navigate(this.dataset.lat, this.dataset.lng);
+            });
+
+            if (!isCompleted) {
+                popup.querySelector('.popup-btn-complete').addEventListener('click', function() {
+                    toggleComplete(this.dataset.name);
+                });
+            }
+
+            popup.querySelector('.popup-btn-edit').addEventListener('click', function() {
+                editLocation(this.dataset.name);
+            });
+
+            return popup;
+        }
+
+        // ============ ACTIONS ============
+        function navigate(lat, lng) {
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            
+            let url;
+            if (isMobile) {
+                // Try to open in native maps app
+                url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+            } else {
+                // Open in Google Maps web
+                url = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+            }
+            
+            window.open(url, '_blank');
+            showToast('success', 'Navigace otevřena', 'Google Maps byla otevřena v novém okně');
+        }
+
+        function toggleComplete(name) {
+            const wasCompleted = completedLocations.has(name);
+            
+            if (wasCompleted) {
+                completedLocations.delete(name);
+                showToast('info', 'Označení zrušeno', `Lokalita ${name} byla odebrána z dokončených`);
+            } else {
+                completedLocations.add(name);
+                showToast('success', 'Lokalita dokončena', `Lokalita ${name} byla označena jako hotová`);
+                
+                // Add celebration animation
+                const marker = markerMap.get(name);
+                if (marker) {
+                    const element = marker.getElement();
+                    if (element) {
+                        element.style.animation = 'completePulse 1s ease-out';
+                    }
+                }
+            }
+            
+            // Save state
+            saveState();
+            
+            // Update UI
+            addMarkers();
+            updateStats();
+            
+            // Close popup
+            map.closePopup();
+        }
+
+        function editLocation(name) {
+            // Placeholder for future implementation
+            showToast('info', 'Funkce v přípravě', `Úprava lokality ${name} bude dostupná v příští verzi`);
+        }
+
+        // ============ STATS ============
+        function updateStats() {
+            const totalArea = locations.reduce((sum, l) => sum + l.area, 0);
+            const completedArea = locations
+                .filter(l => completedLocations.has(l.name))
+                .reduce((sum, l) => sum + l.area, 0);
+            const remainingArea = totalArea - completedArea;
+            const completedCount = completedLocations.size;
+            const totalCount = locations.length;
+            const percentage = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
+            // Animate numbers
+            animateValue('totalArea', 0, totalArea, 800);
+            animateValue('remainingArea', 0, remainingArea, 800);
+            document.getElementById('completedCount').textContent = completedCount;
+            document.getElementById('totalCount').textContent = totalCount;
+            document.getElementById('progressFill').style.width = percentage + '%';
+            document.getElementById('progressPercentage').textContent = percentage + '%';
+            
+            let labelText = 'Začněte označováním lokalit';
+            if (percentage > 0 && percentage < 100) {
+                labelText = `${percentage}% dokončeno - skvělá práce!`;
+            } else if (percentage === 100) {
+                labelText = '🎉 Vše dokončeno! Gratulujeme!';
+            }
+            document.getElementById('progressLabel').textContent = labelText;
+        }
+
+        function animateValue(id, start, end, duration) {
+            const element = document.getElementById(id);
+            const range = end - start;
+            const startTime = performance.now();
+            
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const value = Math.floor(start + range * easeOutQuad(progress));
+                element.textContent = value.toLocaleString('cs-CZ');
+                
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+            
+            requestAnimationFrame(update);
+        }
+
+        function easeOutQuad(t) {
+            return t * (2 - t);
+        }
+
+        // ============ FILTERS ============
+        function toggleFilters() {
+            document.getElementById('filterPanel').classList.toggle('hidden');
+        }
+
+        function applyFilters() {
+            addMarkers();
+            updateStats();
+            toggleFilters();
+            
+            const count = getFilteredLocations().length;
+            showToast('success', 'Filtry aplikovány', `Zobrazeno ${count} lokalit`);
+            
+            // Zoom to filtered locations if any
+            if (count > 0) {
+                zoomToFiltered();
+            }
+        }
+
+        function clearFilters() {
+            selectedDistricts.clear();
+            statusFilter = 'all';
+            sizeFilter = 'all';
+            
+            document.querySelectorAll('.district-chip').forEach(chip => {
+                chip.classList.remove('active');
+            });
+            
+            // Set all filters to 'all'
+            document.querySelectorAll('[data-status="all"]').forEach(chip => chip.classList.add('active'));
+            document.querySelectorAll('[data-status="completed"], [data-status="pending"]').forEach(chip => chip.classList.remove('active'));
+            document.querySelectorAll('[data-size="all"]').forEach(chip => chip.classList.add('active'));
+            document.querySelectorAll('[data-size="small"], [data-size="medium"], [data-size="large"]').forEach(chip => chip.classList.remove('active'));
+            
+            addMarkers();
+            updateStats();
+            showToast('info', 'Filtry vymazány', 'Zobrazeny všechny lokality');
+        }
+
+        function resetAll() {
+            if (confirm('Opravdu chcete resetovat všechna data? Tato akce je nevratná.')) {
+                completedLocations.clear();
+                saveState();
+                clearFilters();
+                addMarkers();
+                updateStats();
+                showToast('warning', 'Data resetována', 'Všechna dokončená data byla vymazána');
+            }
+        }
+
+        // ============ ZOOM FUNCTIONS ============
+        function zoomToAll() {
+            const bounds = L.latLngBounds(locations.map(l => [l.lat, l.lng]));
+            map.fitBounds(bounds, { padding: [50, 50] });
+            showToast('info', 'Zobrazení upraveno', 'Zobrazeny všechny lokality');
+        }
+
+        function zoomToRemaining() {
+            const remaining = locations.filter(l => !completedLocations.has(l.name));
+            if (remaining.length === 0) {
+                showToast('success', 'Všechno hotovo!', 'Nezbývají žádné nezpracované lokality');
+                return;
+            }
+            const bounds = L.latLngBounds(remaining.map(l => [l.lat, l.lng]));
+            map.fitBounds(bounds, { padding: [50, 50] });
+            showToast('info', 'Nezpracované lokality', `Zobrazeno ${remaining.length} lokalit`);
+        }
+
+        function zoomToFiltered() {
+            const filtered = getFilteredLocations();
+            if (filtered.length === 0) return;
+            const bounds = L.latLngBounds(filtered.map(l => [l.lat, l.lng]));
+            map.fitBounds(bounds, { padding: [50, 50] });
+        }
+
+        // ============ ROUTE PLANNER ============
+        function toggleRouteMode() {
+            routeMode = !routeMode;
+            const panel = document.getElementById('routePanel');
+            const mapElement = document.getElementById('map');
+            
+            if (routeMode) {
+                panel.classList.add('active');
+                mapElement.classList.add('route-mode');
+                showToast('info', 'Režim plánování', 'Klikněte na lokality pro vytvoření trasy');
+            } else {
+                panel.classList.remove('active');
+                mapElement.classList.remove('route-mode');
+                clearRoute();
+            }
+        }
+
+        function addToRoute(location, marker) {
+            // Toggle selection
+            const index = routePoints.findIndex(p => p.name === location.name);
+            
+            if (index >= 0) {
+                // Remove from route
+                routePoints.splice(index, 1);
+                marker.getElement().classList.remove('selected');
+            } else {
+                // Add to route
+                routePoints.push({
+                    name: location.name,
+                    lat: location.lat,
+                    lng: location.lng,
+                    marker: marker
+                });
+                marker.getElement().classList.add('selected');
+            }
+            
+            updateRouteInfo();
+            
+            // If we have 2+ points, draw route
+            if (routePoints.length >= 2) {
+                drawRoute();
+            }
+        }
+
+        function updateRouteInfo() {
+            document.getElementById('routeStops').textContent = routePoints.length;
+            
+            if (routePoints.length >= 2) {
+                // Calculate total distance (simple straight-line for now)
+                let totalDistance = 0;
+                for (let i = 0; i < routePoints.length - 1; i++) {
+                    const p1 = L.latLng(routePoints[i].lat, routePoints[i].lng);
+                    const p2 = L.latLng(routePoints[i + 1].lat, routePoints[i + 1].lng);
+                    totalDistance += p1.distanceTo(p2);
+                }
+                
+                const km = (totalDistance / 1000).toFixed(1);
+                const estimatedTime = Math.round((totalDistance / 1000) / 50 * 60); // Assuming 50 km/h average
+                
+                document.getElementById('routeDistance').textContent = km + ' km';
+                document.getElementById('routeTime').textContent = estimatedTime + ' min';
+            } else {
+                document.getElementById('routeDistance').textContent = '0 km';
+                document.getElementById('routeTime').textContent = '0 min';
+            }
+        }
+
+        function drawRoute() {
+            // Remove existing route
+            if (routeControl) {
+                map.removeControl(routeControl);
+            }
+            
+            if (routePoints.length < 2) return;
+            
+            // Create waypoints
+            const waypoints = routePoints.map(p => L.latLng(p.lat, p.lng));
+            
+            // Draw simple polyline (routing machine requires OSRM server)
+            // For production, you'd want to set up proper routing
+            const polyline = L.polyline(waypoints, {
+                color: '#2563eb',
+                weight: 4,
+                opacity: 0.7,
+                dashArray: '10, 10'
+            }).addTo(map);
+            
+            // Store reference for cleanup
+            routeControl = polyline;
+        }
+
+        function clearRoute() {
+            routePoints.forEach(p => {
+                p.marker.getElement().classList.remove('selected');
+            });
+            routePoints = [];
+            
+            if (routeControl) {
+                map.removeLayer(routeControl);
+                routeControl = null;
+            }
+            
+            updateRouteInfo();
+            showToast('info', 'Trasa vymazána', 'Můžete začít plánovat novou trasu');
+        }
+
+        function optimizeRoute() {
+            if (routePoints.length < 2) {
+                showToast('warning', 'Nedostatek bodů', 'Pro optimalizaci trasy vyberte alespoň 2 lokality');
+                return;
+            }
+            
+            // Simple nearest neighbor optimization
+            const optimized = [];
+            const remaining = [...routePoints];
+            
+            // Start with first point
+            let current = remaining.shift();
+            optimized.push(current);
+            
+            // Find nearest neighbor iteratively
+            while (remaining.length > 0) {
+                let nearestIndex = 0;
+                let nearestDistance = Infinity;
+                
+                for (let i = 0; i < remaining.length; i++) {
+                    const p1 = L.latLng(current.lat, current.lng);
+                    const p2 = L.latLng(remaining[i].lat, remaining[i].lng);
+                    const distance = p1.distanceTo(p2);
+                    
+                    if (distance < nearestDistance) {
+                        nearestDistance = distance;
+                        nearestIndex = i;
+                    }
+                }
+                
+                current = remaining.splice(nearestIndex, 1)[0];
+                optimized.push(current);
+            }
+            
+            routePoints = optimized;
+            updateRouteInfo();
+            drawRoute();
+            showToast('success', 'Trasa optimalizována', 'Pořadí lokalit bylo upraveno pro nejkratší cestu');
+        }
+
+        function startNavigation() {
+            if (routePoints.length === 0) {
+                showToast('warning', 'Žádná trasa', 'Nejprve vyberte lokality pro navigaci');
+                return;
+            }
+            
+            // Create waypoints string for Google Maps
+            const waypoints = routePoints.map(p => `${p.lat},${p.lng}`).join('/');
+            const url = `https://www.google.com/maps/dir/${waypoints}`;
+            
+            window.open(url, '_blank');
+            showToast('success', 'Navigace spuštěna', 'Google Maps byla otevřena s vaší trasou');
+        }
+
+        // ============ QUICK ACTIONS ============
+        function showStatistics() {
+            const stats = {
+                total: locations.length,
+                completed: completedLocations.size,
+                remaining: locations.length - completedLocations.size,
+                totalArea: locations.reduce((sum, l) => sum + l.area, 0),
+                completedArea: locations.filter(l => completedLocations.has(l.name)).reduce((sum, l) => sum + l.area, 0),
+                byDistrict: {}
+            };
+            
+            // Calculate by district
+            locations.forEach(l => {
+                if (!stats.byDistrict[l.district]) {
+                    stats.byDistrict[l.district] = { total: 0, completed: 0, area: 0 };
+                }
+                stats.byDistrict[l.district].total++;
+                stats.byDistrict[l.district].area += l.area;
+                if (completedLocations.has(l.name)) {
+                    stats.byDistrict[l.district].completed++;
+                }
+            });
+            
+            let message = `📊 Celkem lokalit: ${stats.total}\n`;
+            message += `✅ Dokončeno: ${stats.completed}\n`;
+            message += `⏱️ Zbývá: ${stats.remaining}\n`;
+            message += `📏 Celková plocha: ${stats.totalArea.toLocaleString('cs-CZ')} m²\n\n`;
+            message += `Podle okresů:\n`;
+            
+            Object.entries(stats.byDistrict).forEach(([district, data]) => {
+                const percent = Math.round((data.completed / data.total) * 100);
+                message += `${district}: ${data.completed}/${data.total} (${percent}%)\n`;
+            });
+            
+            alert(message);
+        }
+
+        function shareProgress() {
+            const percentage = Math.round((completedLocations.size / locations.length) * 100);
+            const text = `📊 JVS Management System\n✅ Dokončeno: ${completedLocations.size}/${locations.length} lokalit (${percentage}%)\n🎯 Pokračujte v skvělé práci!`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'JVS - Pokrok',
+                    text: text
+                }).then(() => {
+                    showToast('success', 'Sdíleno', 'Pokrok byl úspěšně sdílen');
+                }).catch(err => {
+                    console.error('Share failed:', err);
+                });
+            } else {
+                // Fallback: copy to clipboard
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast('success', 'Zkopírováno', 'Pokrok byl zkopírován do schránky');
+                }).catch(err => {
+                    console.error('Copy failed:', err);
+                    showToast('error', 'Chyba', 'Nepodařilo se zkopírovat do schránky');
+                });
+            }
+        }
+
+        // ============ EXPORT ============
+        function exportData() {
+            const data = locations.map(l => ({
+                Název: l.name,
+                Okres: l.district,
+                'Plocha (m²)': l.area,
+                'Zeměpisná šířka': l.lat,
+                'Zeměpisná délka': l.lng,
+                Stav: completedLocations.has(l.name) ? 'Dokončeno' : 'Čeká'
+            }));
+            
+            // Convert to CSV
+            const headers = Object.keys(data[0]).join(',');
+            const rows = data.map(row => Object.values(row).join(','));
+            const csv = [headers, ...rows].join('\n');
+            
+            // Download
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' }); // BOM for Czech characters
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `jvs_export_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showToast('success', 'Export dokončen', 'Data byla exportována do CSV souboru');
+        }
+
+        // ============ TOAST NOTIFICATIONS ============
+        function showToast(type, title, message) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+            
+            toast.innerHTML = `
+                <div class="toast-icon">${icons[type] || icons.info}</div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" aria-label="Zavřít notifikaci">✕</button>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Add close handler
+            toast.querySelector('.toast-close').addEventListener('click', () => {
+                toast.style.animation = 'slideInRight 0.3s ease-out reverse';
+                setTimeout(() => toast.remove(), 300);
+            });
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.style.animation = 'slideInRight 0.3s ease-out reverse';
+                    setTimeout(() => toast.remove(), 300);
+                }
+            }, 5000);
+        }
+
+        // ============ KEYBOARD SHORTCUTS ============
+        document.addEventListener('keydown', (e) => {
+            // Ctrl/Cmd + F: Toggle filters
+            if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+                e.preventDefault();
+                toggleFilters();
+            }
+            
+            // Ctrl/Cmd + R: Toggle route mode
+            if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+                e.preventDefault();
+                toggleRouteMode();
+            }
+            
+            // Escape: Close panels
+            if (e.key === 'Escape') {
+                if (!document.getElementById('filterPanel').classList.contains('hidden')) {
+                    toggleFilters();
+                }
+                if (routeMode) {
+                    toggleRouteMode();
+                }
+            }
+        });
+
+        // ============ START ============
+        window.addEventListener('load', init);
+
+        // ============ SERVICE WORKER (PWA) ============
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                // Service worker would be registered here for offline support
+                // Commented out for now as it requires additional setup
+                // navigator.serviceWorker.register('/sw.js');
+            });
+        }
+    </script>
+</body>
+</html>
