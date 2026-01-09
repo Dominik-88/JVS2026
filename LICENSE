@@ -1,0 +1,169 @@
+# Proprietary Software License
+
+## JVS Management System v4.0 PRO
+
+Copyright © 2026 JVS a.s.  
+All rights reserved.
+
+---
+
+## License Grant
+
+This software and associated documentation files (the "Software") are proprietary and confidential to JVS a.s. ("the Company"). The Software is licensed, not sold, to authorized users under the terms and conditions set forth in this license agreement.
+
+## Permitted Use
+
+Subject to the terms of this Agreement, the Company grants you a limited, non-exclusive, non-transferable, revocable license to:
+
+1. **Use** the Software for internal business operations of JVS a.s.
+2. **Access** the Software through authorized channels only
+3. **View** the source code for maintenance and debugging purposes
+
+## Restrictions
+
+You may NOT:
+
+1. **Redistribute** - Copy, distribute, or transfer the Software to third parties
+2. **Modify** - Alter, adapt, or create derivative works without explicit written permission
+3. **Reverse Engineer** - Decompile, disassemble, or reverse engineer the Software
+4. **Sublicense** - Grant sublicenses or otherwise transfer rights to the Software
+5. **Commercial Use** - Use the Software for commercial purposes outside of JVS a.s.
+6. **Remove Notices** - Remove or alter any copyright, trademark, or other proprietary notices
+7. **Public Disclosure** - Disclose, publish, or share any part of the Software publicly
+
+## Ownership
+
+The Company retains all rights, title, and interest in and to the Software, including all intellectual property rights. This license does not grant you any rights to trademarks, service marks, or trade names of the Company.
+
+## Confidentiality
+
+The Software contains proprietary and confidential information of the Company. You agree to:
+
+1. Treat the Software as confidential
+2. Not disclose the Software to unauthorized parties
+3. Use reasonable care to protect the Software from unauthorized access
+4. Report any security breaches immediately to the Company
+
+## Data Collection and Privacy
+
+The Software may collect and store the following data locally:
+
+1. **Completed locations** - Stored in browser LocalStorage
+2. **User preferences** - Theme settings, filter preferences
+3. **Usage statistics** - For internal improvement purposes
+
+No data is transmitted to external servers without explicit user consent.
+
+## Warranty Disclaimer
+
+THE SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT.
+
+The Company does not warrant that:
+
+1. The Software will meet your requirements
+2. The Software will be uninterrupted, timely, secure, or error-free
+3. Results obtained from use of the Software will be accurate or reliable
+4. Any defects in the Software will be corrected
+
+## Limitation of Liability
+
+IN NO EVENT SHALL THE COMPANY BE LIABLE FOR ANY SPECIAL, INDIRECT, INCIDENTAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING BUT NOT LIMITED TO LOSS OF PROFITS, DATA, OR USE, ARISING OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THIS LICENSE, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE.
+
+The Company's total liability under this license shall not exceed the amount paid (if any) for the license.
+
+## Termination
+
+This license is effective until terminated. Your rights under this license will terminate automatically without notice if you fail to comply with any term of this license. Upon termination, you must:
+
+1. Cease all use of the Software
+2. Destroy all copies of the Software in your possession
+3. Certify in writing that you have complied with these requirements
+
+## Updates and Modifications
+
+The Company reserves the right to:
+
+1. Modify the Software at any time
+2. Update this license agreement
+3. Discontinue support or maintenance
+4. Change features or functionality
+
+Continued use of the Software after modifications constitutes acceptance of the updated terms.
+
+## Authorized Users
+
+This license is granted only to authorized employees and contractors of JVS a.s. Authorized users must:
+
+1. Agree to the terms of this license
+2. Protect their access credentials
+3. Not share access with unauthorized parties
+4. Report security incidents immediately
+
+## Third-Party Components
+
+The Software includes the following open-source components:
+
+### Leaflet.js
+- **License**: BSD-2-Clause
+- **Copyright**: 2010-2023, Vladimir Agafonkin, CloudMade
+- **URL**: https://leafletjs.com
+- **Used for**: Interactive map functionality
+
+### OpenStreetMap
+- **License**: Open Database License (ODbL)
+- **Copyright**: OpenStreetMap contributors
+- **URL**: https://www.openstreetmap.org
+- **Used for**: Map tiles and geographical data
+
+These components remain under their respective licenses and are not affected by this proprietary license.
+
+## Export Compliance
+
+You agree to comply with all applicable export and import control laws and regulations. The Software may not be exported or re-exported:
+
+1. Into (or to a national or resident of) any embargoed countries
+2. To anyone on the U.S. Treasury Department's list of Specially Designated Nationals
+3. To any prohibited or restricted party
+
+## Governing Law
+
+This license shall be governed by and construed in accordance with the laws of the Czech Republic, without regard to its conflict of law provisions.
+
+Any disputes arising under this license shall be resolved in the courts of České Budějovice, Czech Republic.
+
+## Severability
+
+If any provision of this license is held to be unenforceable, the remaining provisions shall remain in full force and effect.
+
+## Entire Agreement
+
+This license constitutes the entire agreement between you and the Company regarding the Software and supersedes all prior agreements and understandings.
+
+## Contact Information
+
+For licensing inquiries, permissions, or questions:
+
+**JVS a.s.**  
+Email: legal@jvs.cz  
+Phone: +420 XXX XXX XXX  
+Address: [Company Address]
+
+**Technical Support:**  
+Email: d.schmied@lantaron.cz  
+Developer: Dominik Schmied
+
+## Acknowledgment
+
+BY USING THE SOFTWARE, YOU ACKNOWLEDGE THAT YOU HAVE READ THIS LICENSE, UNDERSTAND IT, AND AGREE TO BE BOUND BY ITS TERMS AND CONDITIONS.
+
+---
+
+## Version History
+
+- **v1.0** (2026-01-09) - Initial proprietary license for JVS Management System v4.0 PRO
+
+---
+
+**© 2026 JVS a.s. All Rights Reserved.**
+
+This is a legal document. If you do not agree to these terms, do not use the Software.

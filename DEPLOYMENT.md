@@ -1,55 +1,74 @@
-# 🚀 Deployment Guide
+# 🚀 Deployment Guide - Průvodce nasazením
 
-Návod pro nasazení aplikace Vodárenské areály JVS do produkce.
+Tento průvodce vás provede všemi možnostmi nasazení aplikace JVS Management System v4.0 PRO.
 
 ---
 
 ## 📋 Obsah
 
-1. [Požadavky](#požadavky)
-2. [Lokální vývoj](#lokální-vývoj)
-3. [GitHub Pages](#github-pages)
-4. [Netlify](#netlify)
-5. [Vercel](#vercel)
-6. [Vlastní server](#vlastní-server)
-7. [Docker](#docker)
-8. [Troubleshooting](#troubleshooting)
+1. [Příprava před nasazením](#příprava-před-nasazením)
+2. [Lokální testování](#lokální-testování)
+3. [Statické hosting platformy](#statické-hosting-platformy)
+4. [Cloud platformy](#cloud-platformy)
+5. [Vlastní server](#vlastní-server)
+6. [CDN konfigurace](#cdn-konfigurace)
+7. [HTTPS a SSL](#https-a-ssl)
+8. [Monitoring a Analytics](#monitoring-a-analytics)
+9. [Backup strategie](#backup-strategie)
+10. [Troubleshooting](#troubleshooting)
 
 ---
 
-## 🔧 Požadavky
+## 1. Příprava před nasazením
 
-### Minimální požadavky
-- Moderní webový prohlížeč (Chrome 90+, Firefox 88+, Safari 14+)
-- HTTP server (pro lokální vývoj)
-- Git (pro verzování)
+### ✅ Pre-deployment checklist
 
-### Doporučené
-- Node.js 16+ (pro development tools)
-- npm nebo yarn (package manager)
-- VS Code (editor)
+- [ ] Zkontrolovat funkčnost všech features
+- [ ] Otestovat na všech podporovaných prohlížečích
+- [ ] Otestovat responsivitu (mobile, tablet, desktop)
+- [ ] Zkontrolovat console na errors/warnings
+- [ ] Optimalizovat obrázky a assety
+- [ ] Minifikovat HTML/CSS/JS (volitelné)
+- [ ] Nastavit správné meta tagy
+- [ ] Zkontrolovat GPS souřadnice
+- [ ] Testovat LocalStorage funkčnost
+- [ ] Zkontrolovat CORS nastavení pro mapy
 
----
-
-## 💻 Lokální vývoj
-
-### Metoda 1: Live Server (doporučeno)
+### 🔍 Quality Assurance
 
 ```bash
-# Nainstalujte live-server globálně
+# Validace HTML
+https://validator.w3.org/
+
+# Lighthouse audit (Chrome DevTools)
+- Performance: 95+
+- Accessibility: 95+
+- Best Practices: 95+
+- SEO: 95+
+
+# Cross-browser testing
+- Chrome 90+
+- Firefox 88+
+- Safari 14+
+- Edge 90+
+```
+
+---
+
+## 2. Lokální testování
+
+### Metoda 1: Live Server (Doporučeno)
+
+```bash
+# Instalace
 npm install -g live-server
 
-# Klonujte repozitář
-git clone https://github.com/Dominik-88/JVS2026.git
-cd JVS2026
-
-# Přepněte na refactor branch
-git checkout refactor-modern-ui
-
-# Spusťte server
+# Spuštění
+cd jvs-refactored
 live-server
 
-# Aplikace běží na http://localhost:8080
+# Pokročilé nastavení
+live-server --port=8080 --host=0.0.0.0 --open=/index.html
 ```
 
 ### Metoda 2: Python HTTP Server
@@ -61,423 +80,541 @@ python -m http.server 8000
 # Python 2
 python -m SimpleHTTPServer 8000
 
-# Otevřete http://localhost:8000
+# S custom portem
+python3 -m http.server 3000
 ```
 
-### Metoda 3: Node.js HTTP Server
+### Metoda 3: Node.js http-server
 
 ```bash
-# Nainstalujte http-server
+# Instalace
 npm install -g http-server
 
-# Spusťte server
-http-server -p 8000
+# Spuštění
+http-server -p 8080 -o
 
-# Otevřete http://localhost:8000
+# S CORS
+http-server -p 8080 --cors
 ```
 
-### Metoda 4: VS Code Live Server
+### Metoda 4: VS Code Live Server Extension
 
-1. Nainstalujte rozšíření "Live Server"
+1. Nainstalujte extension "Live Server"
 2. Otevřete `index.html`
 3. Klikněte pravým tlačítkem → "Open with Live Server"
 
 ---
 
-## 🌐 GitHub Pages
+## 3. Statické hosting platformy
 
-### Automatické nasazení
+### 🌐 GitHub Pages (ZDARMA)
 
-```bash
-# 1. Přepněte na main branch
-git checkout main
-
-# 2. Mergněte refactor branch
-git merge refactor-modern-ui
-
-# 3. Pushněte do GitHub
-git push origin main
-
-# 4. Povolte GitHub Pages v nastavení repozitáře
-# Settings → Pages → Source: main branch → Save
-```
-
-### Ruční nasazení
+**Výhody**: Zdarma, snadné CI/CD, custom domain support
+**Nevýhody**: Pouze public repositories (free tier)
 
 ```bash
-# 1. Vytvořte gh-pages branch
-git checkout -b gh-pages
+# Příprava
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/Dominik-88/JVS2026.git
+git push -u origin main
 
-# 2. Pushněte do GitHub
-git push origin gh-pages
+# Nastavení GitHub Pages
+# 1. Jděte do Settings → Pages
+# 2. Source: Deploy from branch
+# 3. Branch: main, folder: / (root)
+# 4. Save
 
-# 3. Nastavte GitHub Pages na gh-pages branch
+# URL: https://dominik-88.github.io/JVS2026/
 ```
 
-### URL aplikace
-```
-https://dominik-88.github.io/JVS2026/
-```
+### ☁️ Netlify (ZDARMA)
 
----
-
-## 🚀 Netlify
-
-### Metoda 1: Drag & Drop
-
-1. Otevřete [Netlify](https://app.netlify.com/)
-2. Přetáhněte složku projektu do "Sites"
-3. Aplikace je okamžitě nasazena
-
-### Metoda 2: Git Integration
-
-1. Připojte GitHub repozitář
-2. Nastavte build settings:
-   ```
-   Build command: (prázdné)
-   Publish directory: .
-   ```
-3. Deploy site
-
-### Metoda 3: Netlify CLI
+**Výhody**: Automatický SSL, custom domains, edge functions
+**Nevýhody**: 100GB bandwidth/měsíc na free tier
 
 ```bash
-# Nainstalujte Netlify CLI
+# Metoda 1: Drag & Drop
+# 1. https://app.netlify.com/drop
+# 2. Přetáhněte složku s projektem
+# 3. Hotovo!
+
+# Metoda 2: Netlify CLI
 npm install -g netlify-cli
-
-# Přihlaste se
 netlify login
-
-# Inicializujte projekt
 netlify init
-
-# Nasaďte
 netlify deploy --prod
+
+# Metoda 3: GitHub integration
+# 1. Připojte GitHub účet
+# 2. Vyberte repository
+# 3. Build settings: (žádné, statický site)
+# 4. Deploy
 ```
 
-### Custom doména
+**netlify.toml** (volitelné):
 
-```bash
-# V Netlify dashboard
-Domain settings → Add custom domain → jvs-vodarna.netlify.app
+```toml
+[build]
+  publish = "."
+  
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
 ```
 
----
+### 🔷 Vercel (ZDARMA)
 
-## ⚡ Vercel
-
-### Metoda 1: Vercel CLI
+**Výhody**: Edge network, automatický SSL, analytics
+**Nevýhody**: Bandwidth limity na free tier
 
 ```bash
-# Nainstalujte Vercel CLI
+# Instalace
 npm install -g vercel
 
-# Přihlaste se
-vercel login
-
-# Nasaďte
+# Deploy
 vercel
 
-# Produkční nasazení
+# Produkční deploy
 vercel --prod
+
+# GitHub integration
+# 1. https://vercel.com/new
+# 2. Import Git Repository
+# 3. Automatic deployments
 ```
 
-### Metoda 2: Git Integration
+**vercel.json** (volitelné):
 
-1. Importujte GitHub repozitář
-2. Nastavte framework: "Other"
-3. Deploy
-
-### URL aplikace
+```json
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "index.html",
+      "use": "@vercel/static"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        }
+      ]
+    }
+  ]
+}
 ```
-https://jvs2026.vercel.app
+
+### 🚀 Cloudflare Pages (ZDARMA)
+
+**Výhody**: Unlimited bandwidth, workers, global CDN
+**Nevýhody**: Build time limity
+
+```bash
+# Metoda 1: Wrangler CLI
+npm install -g wrangler
+wrangler login
+wrangler pages project create jvs-system
+wrangler pages publish .
+
+# Metoda 2: GitHub integration
+# 1. https://pages.cloudflare.com/
+# 2. Connect GitHub
+# 3. Select repository
+# 4. Deploy
+```
+
+### 📦 Firebase Hosting
+
+**Výhody**: Google infrastructure, custom domains, SSL
+**Nevýhody**: Vyžaduje Firebase projekt
+
+```bash
+# Instalace
+npm install -g firebase-tools
+
+# Login
+firebase login
+
+# Inicializace
+firebase init hosting
+# Vyberte: Use existing project nebo Create new
+# Public directory: . (current)
+# Single-page app: Yes
+# GitHub actions: No (zatím)
+
+# Deploy
+firebase deploy --only hosting
+
+# Custom domain
+# Firebase Console → Hosting → Add custom domain
+```
+
+**firebase.json**:
+
+```json
+{
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "headers": [
+      {
+        "source": "**/*.@(jpg|jpeg|gif|png|svg|webp)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "max-age=7200"
+          }
+        ]
+      }
+    ]
+  }
+}
 ```
 
 ---
 
-## 🖥️ Vlastní server
+## 4. Cloud platformy
 
-### Apache
+### ☁️ AWS S3 + CloudFront
 
-```apache
-# .htaccess
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteBase /
-    RewriteRule ^index\.html$ - [L]
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule . /index.html [L]
-</IfModule>
+**Výhody**: Škálovatelné, levné, globální CDN
+**Nevýhody**: Komplexnější nastavení
 
-# Komprese
-<IfModule mod_deflate.c>
-    AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript
-</IfModule>
+```bash
+# 1. Vytvořte S3 bucket
+aws s3 mb s3://jvs-system
 
-# Cache
-<IfModule mod_expires.c>
-    ExpiresActive On
-    ExpiresByType text/html "access plus 1 hour"
-    ExpiresByType text/css "access plus 1 month"
-    ExpiresByType application/javascript "access plus 1 month"
-</IfModule>
+# 2. Uploadujte soubory
+aws s3 sync . s3://jvs-system --acl public-read
+
+# 3. Aktivujte static website hosting
+aws s3 website s3://jvs-system --index-document index.html
+
+# 4. Vytvořte CloudFront distribution
+# AWS Console → CloudFront → Create Distribution
+# Origin: S3 bucket
+# SSL: Request certificate from ACM
 ```
 
-### Nginx
+### 🌊 Azure Static Web Apps
+
+```bash
+# Azure CLI
+az login
+az staticwebapp create \
+    --name jvs-system \
+    --resource-group myResourceGroup \
+    --source . \
+    --location "westeurope" \
+    --branch main \
+    --app-location "/" \
+    --output-location "."
+```
+
+### ☁️ Google Cloud Storage
+
+```bash
+# 1. Vytvořte bucket
+gsutil mb gs://jvs-system
+
+# 2. Upload
+gsutil -m cp -r * gs://jvs-system
+
+# 3. Make public
+gsutil iam ch allUsers:objectViewer gs://jvs-system
+
+# 4. Configure website
+gsutil web set -m index.html -e 404.html gs://jvs-system
+```
+
+---
+
+## 5. Vlastní server
+
+### 🐧 Linux Server (Ubuntu/Debian)
+
+#### Nginx konfigurace
+
+```bash
+# Instalace Nginx
+sudo apt update
+sudo apt install nginx
+
+# Vytvořte konfiguraci
+sudo nano /etc/nginx/sites-available/jvs-system
+```
 
 ```nginx
 server {
     listen 80;
-    server_name jvs-vodarna.cz;
-    root /var/www/jvs2026;
+    server_name jvs.example.com;
+    root /var/www/jvs-system;
     index index.html;
 
-    # Komprese
-    gzip on;
-    gzip_types text/html text/css application/javascript;
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
 
-    # Cache
-    location ~* \.(css|js)$ {
-        expires 1M;
+    # Security headers
+    add_header X-Frame-Options "DENY" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+    # Gzip compression
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+
+    # Cache static assets
+    location ~* \.(jpg|jpeg|png|gif|ico|css|js)$ {
+        expires 1y;
         add_header Cache-Control "public, immutable";
     }
-
-    # SPA routing
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
 }
 ```
 
-### Nasazení
+```bash
+# Aktivace site
+sudo ln -s /etc/nginx/sites-available/jvs-system /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl reload nginx
+
+# Upload souborů
+scp -r * user@server:/var/www/jvs-system/
+```
+
+#### Apache konfigurace
 
 ```bash
-# 1. Připojte se k serveru
-ssh user@server.com
+# Instalace Apache
+sudo apt install apache2
 
-# 2. Klonujte repozitář
-cd /var/www
-git clone https://github.com/Dominik-88/JVS2026.git
-cd JVS2026
-git checkout refactor-modern-ui
-
-# 3. Nastavte oprávnění
-chmod -R 755 .
-
-# 4. Restartujte server
-sudo systemctl restart nginx  # nebo apache2
+# Vytvořte konfiguraci
+sudo nano /etc/apache2/sites-available/jvs-system.conf
 ```
+
+```apache
+<VirtualHost *:80>
+    ServerName jvs.example.com
+    DocumentRoot /var/www/jvs-system
+
+    <Directory /var/www/jvs-system>
+        Options -Indexes +FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    # Security headers
+    Header always set X-Frame-Options "DENY"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-XSS-Protection "1; mode=block"
+
+    ErrorLog ${APACHE_LOG_DIR}/jvs-error.log
+    CustomLog ${APACHE_LOG_DIR}/jvs-access.log combined
+</VirtualHost>
+```
+
+```bash
+# Aktivace
+sudo a2ensite jvs-system
+sudo a2enmod headers rewrite
+sudo systemctl reload apache2
+```
+
+### 🪟 Windows Server (IIS)
+
+1. Instalujte IIS role
+2. Vytvořte nový website
+3. Nastav root na složku s aplikací
+4. Konfigurujte MIME types
+5. Nastavte SSL certificate
 
 ---
 
-## 🐳 Docker
+## 6. CDN konfigurace
 
-### Dockerfile
-
-```dockerfile
-FROM nginx:alpine
-
-# Kopírujte soubory
-COPY index.html /usr/share/nginx/html/
-COPY manifest.json /usr/share/nginx/html/
-COPY sw.js /usr/share/nginx/html/
-
-# Nginx konfigurace
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]
-```
-
-### nginx.conf
-
-```nginx
-server {
-    listen 80;
-    server_name localhost;
-    root /usr/share/nginx/html;
-    index index.html;
-
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
-}
-```
-
-### Build a spuštění
+### Cloudflare (Doporučeno)
 
 ```bash
-# Build image
-docker build -t jvs2026 .
+# 1. Přidejte doménu do Cloudflare
+# 2. Změňte nameservers
+# 3. Nastavte DNS records:
 
-# Spusťte container
-docker run -d -p 8080:80 --name jvs-app jvs2026
+# A record
+jvs.example.com → your-server-ip (proxied)
 
-# Otevřete http://localhost:8080
+# 4. Page Rules:
+# Cache Level: Cache Everything
+# Browser Cache TTL: 1 year (static assets)
 ```
 
-### Docker Compose
+### Optimalizace
 
-```yaml
-version: '3.8'
-
-services:
-  web:
-    build: .
-    ports:
-      - "8080:80"
-    restart: unless-stopped
-```
-
-```bash
-# Spusťte
-docker-compose up -d
-
-# Zastavte
-docker-compose down
-```
+- Enable Auto Minify (HTML, CSS, JS)
+- Enable Brotli compression
+- Polish images (optional)
+- Enable HTTP/2
+- Enable HTTP/3 (QUIC)
 
 ---
 
-## 🔍 Troubleshooting
+## 7. HTTPS a SSL
 
-### Problém: Mapa se nenačítá
+### Let's Encrypt (ZDARMA)
 
-**Řešení:**
-```javascript
-// Zkontrolujte konzoli prohlížeče
-// Ujistěte se, že Leaflet.js je načten
-console.log(typeof L); // mělo by vrátit "object"
-
-// Zkontrolujte síťové požadavky
-// OpenStreetMap tiles by měly být načteny
-```
-
-### Problém: LocalStorage nefunguje
-
-**Řešení:**
-```javascript
-// Zkontrolujte, zda je LocalStorage dostupný
-if (typeof(Storage) !== "undefined") {
-    console.log("LocalStorage je podporován");
-} else {
-    console.log("LocalStorage není podporován");
-}
-
-// Zkontrolujte kvótu
-navigator.storage.estimate().then(estimate => {
-    console.log(`Použito: ${estimate.usage} / ${estimate.quota}`);
-});
-```
-
-### Problém: Markery se nezobrazují
-
-**Řešení:**
-```javascript
-// Zkontrolujte GPS souřadnice
-locations.forEach(loc => {
-    console.log(`${loc.name}: ${loc.lat}, ${loc.lng}`);
-});
-
-// Zkontrolujte zoom level
-map.setView([49.0, 14.3], 10);
-```
-
-### Problém: Responzivita nefunguje
-
-**Řešení:**
-```html
-<!-- Zkontrolujte viewport meta tag -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<!-- Zkontrolujte CSS media queries -->
-@media (max-width: 768px) {
-    /* Mobile styles */
-}
-```
-
-### Problém: CORS chyby
-
-**Řešení:**
 ```bash
-# Spusťte lokální server místo otevření souboru
-# Soubor: file:///path/to/index.html ❌
-# Server: http://localhost:8080 ✅
+# Certbot instalace
+sudo apt install certbot python3-certbot-nginx
 
-# Použijte live-server nebo http-server
-npm install -g live-server
-live-server
+# Získání certifikátu (Nginx)
+sudo certbot --nginx -d jvs.example.com
+
+# Získání certifikátu (Apache)
+sudo certbot --apache -d jvs.example.com
+
+# Auto-renewal
+sudo certbot renew --dry-run
 ```
+
+### Cloudflare SSL
+
+- Free: Flexible SSL (Cloud flare to origin unencrypted)
+- Recommended: Full (strict) - Vyžaduje SSL na origin
 
 ---
 
-## 📊 Performance optimalizace
+## 8. Monitoring a Analytics
 
-### Komprese
-
-```bash
-# Gzip komprese
-gzip -9 index.html
-gzip -9 styles.css
-gzip -9 script.js
-```
-
-### Minifikace
-
-```bash
-# HTML minifikace
-npm install -g html-minifier
-html-minifier --collapse-whitespace --remove-comments index.html -o index.min.html
-
-# CSS minifikace
-npm install -g csso-cli
-csso styles.css -o styles.min.css
-
-# JavaScript minifikace
-npm install -g terser
-terser script.js -o script.min.js -c -m
-```
-
-### CDN
+### Google Analytics 4
 
 ```html
-<!-- Použijte CDN pro knihovny -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- Přidejte do <head> -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX');
+</script>
+```
+
+### Plausible Analytics (Privacy-friendly)
+
+```html
+<script defer data-domain="jvs.example.com" src="https://plausible.io/js/script.js"></script>
+```
+
+### Uptime monitoring
+
+- **UptimeRobot** - https://uptimerobot.com (ZDARMA)
+- **Pingdom** - https://pingdom.com
+- **StatusCake** - https://statuscake.com
+
+---
+
+## 9. Backup strategie
+
+### Automatický backup script
+
+```bash
+#!/bin/bash
+# backup.sh
+
+DATE=$(date +%Y-%m-%d_%H-%M-%S)
+BACKUP_DIR="/backups/jvs-system"
+SOURCE="/var/www/jvs-system"
+
+# Vytvoř backup
+tar -czf "$BACKUP_DIR/jvs-backup-$DATE.tar.gz" "$SOURCE"
+
+# Smaž staré backupy (>30 dní)
+find "$BACKUP_DIR" -name "jvs-backup-*.tar.gz" -mtime +30 -delete
+
+echo "Backup completed: jvs-backup-$DATE.tar.gz"
+```
+
+```bash
+# Přidejte do crontab (denní backup ve 2:00)
+crontab -e
+0 2 * * * /path/to/backup.sh
 ```
 
 ---
 
-## 🔒 Bezpečnost
+## 10. Troubleshooting
 
-### HTTPS
+### Běžné problémy
+
+#### 404 Not Found
 
 ```bash
-# Certbot (Let's Encrypt)
-sudo certbot --nginx -d jvs-vodarna.cz
+# Zkontrolujte root directory
+ls -la /var/www/jvs-system/
+
+# Zkontrolujte permissions
+sudo chown -R www-data:www-data /var/www/jvs-system
+sudo chmod -R 755 /var/www/jvs-system
 ```
 
-### Security Headers
+#### CORS errors
 
 ```nginx
-# Nginx
-add_header X-Frame-Options "SAMEORIGIN" always;
-add_header X-Content-Type-Options "nosniff" always;
-add_header X-XSS-Protection "1; mode=block" always;
-add_header Referrer-Policy "no-referrer-when-downgrade" always;
-add_header Content-Security-Policy "default-src 'self' https:; script-src 'self' 'unsafe-inline' https://unpkg.com; style-src 'self' 'unsafe-inline' https://unpkg.com;" always;
+# Nginx - přidejte do location block
+add_header Access-Control-Allow-Origin "*" always;
 ```
+
+#### LocalStorage not working
+
+- Zkontrolujte HTTPS (LocalStorage vyžaduje secure context)
+- Zkontrolujte browser privacy settings
+- Zkontrolujte storage quota
+
+#### Mapy se nenačítají
+
+- Zkontrolujte internet připojení
+- Zkontrolujte CORS policy
+- Zkontrolujte console pro errors
+- Ověřte Leaflet.js CDN dostupnost
 
 ---
 
 ## 📞 Podpora
 
-Pro pomoc s nasazením kontaktujte:
-- **Email**: d.schmied@lantaron.cz
-- **GitHub Issues**: https://github.com/Dominik-88/JVS2026/issues
+Pokud narazíte na problémy:
+
+1. Zkontrolujte console v DevTools
+2. Zkontrolujte network tab
+3. Zkontrolujte server logs
+4. Kontaktujte: d.schmied@lantaron.cz
 
 ---
 
-**Vytvořeno pro JVS a.s. | 2026**
+**Poslední aktualizace: 9. ledna 2026**
